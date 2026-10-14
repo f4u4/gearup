@@ -1,0 +1,416 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการใบแจ้งเคลม - Admin</title>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #0e131f; /* สีพื้นหลังหลักแบบเป๊ะๆ */
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 1.5rem;
+        }
+
+        .max-w-6xl {
+            max-width: 72rem;
+            margin: 0 auto;
+        }
+
+        /* Header Card */
+        .header-card {
+            background-color: #161e2e; /* สีการ์ดหลัก */
+            border: 1px solid #232d42;
+            border-radius: 1rem;
+            padding: 1.5rem 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #00b8d4, #10b981); /* สีฟ้าอมเขียวไล่เฉดแบบต้นฉบับ */
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-sub {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .btn-blue {
+            background-color: #2563eb; /* สีปุ่ม Django Admin */
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.8125rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            transition: opacity 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-blue:hover {
+            opacity: 0.9;
+        }
+
+        /* Table Card */
+        .table-card {
+            background-color: #161e2e;
+            border: 1px solid #232d42;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .table-title {
+            padding: 1.25rem 1.5rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background-color: transparent;
+            color: #94a3b8;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #232d42;
+        }
+
+        td {
+            padding: 1.25rem;
+            border-bottom: 1px solid #232d42;
+            vertical-align: middle;
+            font-size: 0.875rem;
+            color: #cbd5e1;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Data Styling */
+        .claim-id {
+            font-family: monospace;
+            color: #64748b;
+        }
+
+        .customer-name {
+            font-weight: 700;
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        .sub-text {
+            font-size: 0.8125rem;
+            color: #94a3b8;
+            margin-top: 0.25rem;
+            line-height: 1.4;
+        }
+
+        .issue-box {
+            background-color: #0b1120;
+            border: 1px solid #232d42;
+            border-radius: 0.5rem;
+            padding: 0.625rem 0.875rem;
+            font-size: 0.875rem;
+            color: #cbd5e1;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .btn-proof {
+            color: #38bdf8;
+            font-size: 0.8125rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .btn-proof:hover {
+            text-decoration: underline;
+        }
+
+        /* Status Badges - ตรงตามรูปสถานะสต็อก */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            white-space: nowrap;
+        }
+
+        .badge-open {
+            background-color: #063730; /* เขียวเข้มแบบป้ายสถิติ */
+            color: #10b981; /* เขียวสด */
+        }
+
+        .badge-approved {
+            background-color: #1e1b4b;
+            color: #818cf8;
+        }
+
+        .badge-rejected {
+            background-color: #4c1d24;
+            color: #f43f5e;
+        }
+
+        .badge-completed {
+            background-color: #0284c7;
+            color: #ffffff;
+        }
+
+        /* Form Controls */
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            background-color: #0b1120;
+            border: 1px solid #232d42;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8125rem;
+            color: #ffffff;
+            outline: none;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            border-color: #2563eb;
+        }
+
+        .action-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        select {
+            flex: 1;
+            background-color: #0b1120;
+            border: 1px solid #232d42;
+            border-radius: 0.5rem;
+            padding: 0.4rem 0.625rem;
+            font-size: 0.8125rem;
+            color: #ffffff;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* ปุ่มบันทึกสีฟ้าเดียวกับปุ่ม Django Admin */
+        .btn-submit {
+            background-color: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 0.4rem 0.875rem;
+            border-radius: 0.5rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-submit:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Modal Popup */
+        .modal-bg {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 50;
+            justify-content: center;
+            align-items: center;
+            padding: 1.25rem;
+        }
+
+        .modal-box {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .modal-img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 0.75rem;
+            border: 1px solid #232d42;
+            object-fit: contain;
+        }
+
+        .btn-close {
+            position: absolute;
+            top: -0.75rem;
+            right: -0.75rem;
+            background-color: #e11d48;
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            width: 2rem;
+            height: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.875rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="max-w-6xl">
+        <!-- Header -->
+        <div class="header-card">
+            <div>
+                <div class="header-title">🛠️ ระบบจัดการใบแจ้งเคลม (Warranty Claims)</div>
+                <div class="header-sub">ผู้ดูแลระบบ: <span style="color: #ffffff; font-weight: 500;">ธนกฤต ผวนชัยภูมิ</span></div>
+            </div>
+            <a href="/inventory-admin/" class="btn-blue">⚙️ กลับหน้าจัดการคลังสินค้า</a>
+        </div>
+
+        <!-- Table Card -->
+        <div class="table-card">
+            <div class="table-title">📦 รายการแจ้งเคลมสินค้าจากลูกค้า</div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 5rem;">ID</th>
+                            <th style="width: 13rem;">ลูกค้า / สินค้า</th>
+                            <th>อาการเสีย / หลักฐาน</th>
+                            <th style="width: 10rem; text-align: center;">สถานะ</th>
+                            <th style="width: 18rem;">ตอบกลับ & อัปเดตสถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for claim in claims %}
+                        <tr>
+                            <td class="claim-id">#CLM-{{ claim.id }}</td>
+                            <td>
+                                <div class="customer-name">{{ claim.customer_name }}</div>
+                                <div class="sub-text">
+                                    {% if claim.product %}
+                                        สินค้า: <span style="color: #ffffff;">{{ claim.product.name }}</span><br>
+                                    {% endif %}
+                                    {% if claim.order %}
+                                        ออเดอร์: <span style="color: #00b8d4;">#ORD-{{ claim.order.id }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="sub-text" style="color: #64748b; margin-top: 0.5rem;">
+                                    {{ claim.created_at|date:"d/m/Y H:i" }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="issue-box">{{ claim.description }}</div>
+                                {% if claim.image %}
+                                    <button type="button" class="btn-proof" onclick="openModal('{{ claim.image.url }}')">
+                                        🖼️ ดูรูปหลักฐาน
+                                    </button>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center;">
+                                {% if claim.status == 'Open' %}
+                                    <span class="badge badge-open">• รอตรวจสอบ</span>
+                                {% elif claim.status == 'Approved' %}
+                                    <span class="badge badge-approved">• อนุมัติ/กำลังดำเนินการ</span>
+                                {% elif claim.status == 'Rejected' %}
+                                    <span class="badge badge-rejected">• ปฏิเสธการเคลม</span>
+                                {% else %}
+                                    <span class="badge badge-completed">• เคลมสำเร็จ</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form action="{% url 'update_claim' claim.id %}" method="POST" class="form-container">
+                                    {% csrf_token %}
+                                    <textarea name="reply" rows="2" placeholder="พิมพ์ข้อความตอบกลับลูกค้า...">{{ claim.reply|default:'' }}</textarea>
+                                    <div class="action-group">
+                                        <select name="status">
+                                            <option value="Open" {% if claim.status == 'Open' %}selected{% endif %}>รอตรวจสอบ</option>
+                                            <option value="Approved" {% if claim.status == 'Approved' %}selected{% endif %}>อนุมัติ/กำลังดำเนินการ</option>
+                                            <option value="Rejected" {% if claim.status == 'Rejected' %}selected{% endif %}>ปฏิเสธการเคลม</option>
+                                            <option value="Completed" {% if claim.status == 'Completed' %}selected{% endif %}>เคลมสำเร็จ</option>
+                                        </select>
+                                        <button type="submit" class="btn-submit">บันทึก</button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #64748b; padding: 2rem;">ยังไม่มีรายการแจ้งเคลม</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal-bg" onclick="closeModal()">
+        <div class="modal-box" onclick="event.stopPropagation();">
+            <button type="button" class="btn-close" onclick="closeModal()">✕</button>
+            <img id="modalImage" class="modal-img" src="" alt="หลักฐานการเคลม">
+        </div>
+    </div>
+
+    <script>
+        function openModal(url) {
+            document.getElementById('modalImage').src = url;
+            document.getElementById('imageModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>

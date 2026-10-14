@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Django
+db.sqlite3
+.env
+
+# Node.js / Tailwind
+node_modules/
+
+# User uploaded media
+media/
+
+# Environment variables
+.env.*
+!.env.example
